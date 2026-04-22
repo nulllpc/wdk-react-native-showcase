@@ -8,8 +8,11 @@ module.exports = {
     spark: {
       package: '@tetherto/wdk-wallet-spark'
     },
-    sepolia: {
-      package: '@tetherto/wdk-wallet-evm'
+    ethereum: {
+      package: '@tetherto/wdk-wallet-evm-erc-4337'
+    },
+    tron: {
+      package: '@tetherto/wdk-wallet-tron-gasfree'
     }
   },
   preloadModules: [

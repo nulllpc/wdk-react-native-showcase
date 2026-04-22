@@ -21,7 +21,7 @@ export default function BalanceDemoScreen() {
   } = useBalance(
     accountIndex,
     selectedAsset,
-    { enabled: true }
+    { enabled: !!selectedAsset }
   );
 
   const {

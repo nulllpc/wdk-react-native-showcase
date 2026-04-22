@@ -19,9 +19,7 @@ export default function ManageAccountScreen() {
     createTemporaryWallet,
     lock,
     generateMnemonic,
-    clearTemporaryWallet,
-    clearCache,
-    setActiveWalletId
+    clearTemporaryWallet
   } = useWalletManager();
 
   return (
@@ -52,8 +50,8 @@ export default function ManageAccountScreen() {
       />
 
       <ActionCard
-        title="Unlock Active Wallet"
-        description="Unlock the current active wallet (requires biometrics)"
+        title="Unlock Wallet"
+        description="Unlock a wallet to start using it"
         fields={[
           { id: 'walletId', type: 'text', label: 'Wallet ID', placeholder: 'user@example.com' }
         ]}
@@ -62,19 +60,6 @@ export default function ManageAccountScreen() {
           return { success: true, message: `Loaded wallet ${walletId}` };
         }}
         actionLabel="Load Wallet"
-      />
-
-      <ActionCard
-        title="Set Active Wallet"
-        description="Switch the active wallet ID without unlocking."
-        fields={[
-          { id: 'walletId', type: 'text', label: 'Wallet ID', placeholder: 'user@example.com' }
-        ]}
-        action={async ({ walletId }) => {
-          setActiveWalletId(walletId);
-          return { success: true, message: `Active wallet set to ${walletId}` };
-        }}
-        actionLabel="Set Active"
       />
 
       <ActionCard
@@ -150,17 +135,6 @@ export default function ManageAccountScreen() {
           return { success: true, message: "Wallet locked" };
         }}
         actionLabel="Lock"
-      />
-
-      <ActionCard
-        title="Clear Cache"
-        description="Clears the wallet cache."
-        fields={[]}
-        action={async () => {
-          clearCache();
-          return { success: true, message: "Cache cleared" };
-        }}
-        actionLabel="Clear Cache"
       />
 
       <ActionCard

@@ -69,7 +69,7 @@ export default function App() {
           <View style={styles.statusContainer}>
             <Text style={styles.statusLabel}>WDK Lifecycle Status:</Text>
             <View style={styles.badges}>
-              <StatusBadge label="Worklet Ready" active={['NO_WALLET', 'LOCKED'].includes(state.status)} />
+              <StatusBadge label="Worklet Ready" active={['NO_WALLET', 'LOCKED', 'READY', 'REINITIALIZING'].includes(state.status)} />
               <StatusBadge label="Wallet Ready" active={state.status === 'READY'} />
             </View>
           </View>
