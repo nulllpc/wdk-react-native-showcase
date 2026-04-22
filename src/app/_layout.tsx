@@ -26,13 +26,13 @@ const CustomDarkTheme = {
 };
 
 const SplashHandler = ({ children }: { children: React.ReactNode }) => {
-  const { isInitializing } = useWdkApp();
+  const { state } = useWdkApp();
 
   useEffect(() => {
-    if (!isInitializing) {
+    if (state.status === 'INITIALIZING') {
       SplashScreen.hideAsync();
     }
-  }, [isInitializing]);
+  }, [state.status]);
 
   return <>{children}</>;
 };
@@ -41,7 +41,7 @@ export default function RootLayout() {
   return (
     <WdkAppProvider
       wdkConfigs={wdkConfigs}
-      bundle={{ bundle: bundle as string }} // add bundle here
+      bundle={{ bundle: bundle as string }}
     >
       <SplashHandler>
         <GestureHandlerRootView style={{ flex: 1 }}>

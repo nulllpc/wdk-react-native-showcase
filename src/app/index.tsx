@@ -1,5 +1,5 @@
 import { ActivityIndicator, View, StyleSheet, ScrollView, Image, TouchableOpacity, Text } from 'react-native'
-import { useWdkApp, AppStatus } from '@tetherto/wdk-react-native-core'
+import { useWdkApp } from '@tetherto/wdk-react-native-core'
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,10 +38,10 @@ const StatusBadge = ({ label, active }: { label: string, active: boolean }) => (
 );
 
 export default function App() {
-  const { isInitializing, status, workletState, walletState } = useWdkApp();
+  const { state } = useWdkApp();
   const insets = useSafeAreaInsets();
 
-  if (isInitializing) {
+  if (state.status === 'INITIALIZING') {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -69,9 +69,8 @@ export default function App() {
           <View style={styles.statusContainer}>
             <Text style={styles.statusLabel}>WDK Lifecycle Status:</Text>
             <View style={styles.badges}>
-              <StatusBadge label="Worklet Ready" active={workletState.isReady} />
-              <StatusBadge label={`Wallet: ${walletState.status}`} active={walletState.status === 'ready'} />
-              <StatusBadge label={`App: ${status}`} active={status === AppStatus.READY} />
+              <StatusBadge label="Worklet Ready" active={['NO_WALLET', 'LOCKED'].includes(state.status)} />
+              <StatusBadge label="Wallet Ready" active={state.status === 'READY'} />
             </View>
           </View>
         </View>

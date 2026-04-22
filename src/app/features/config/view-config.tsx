@@ -4,7 +4,7 @@ import { FeatureLayout } from '@/components/FeatureLayout';
 import { ConsoleOutput } from '@/components/ConsoleOutput';
 import { colors } from '@/constants/colors';
 import wdkConfigs from '@/config/chain';
-import { tokenConfigs } from '@/config/token';
+import { TOKEN_MAP } from '@/config/token';
 import { ChevronDown, ChevronUp, Network, Coins, Database } from 'lucide-react-native';
 
 const ConfigGroup = ({ title, subtitle, chainData, tokenData }: { title: string, subtitle: string, chainData: any, tokenData: any }) => {
@@ -104,8 +104,18 @@ export default function ViewConfigScreen() {
 
       <View style={styles.list}>
         {Object.entries(wdkConfigs).map(([key, chainConfig]: [string, any]) => {
-          // @ts-ignore
-          const tokenConfig = tokenConfigs[key];
+          const networkName = key;
+          const networkTokens = Array.from(TOKEN_MAP.values()).filter(
+            (token) => token.getNetwork() === networkName
+          );
+
+          const nativeToken = networkTokens.find((token) => token.isNative());
+          const otherTokens = networkTokens.filter((token) => !token.isNative());
+
+          const tokenData = {
+            native: nativeToken,
+            tokens: otherTokens,
+          };
           
           return (
             <ConfigGroup
@@ -113,7 +123,7 @@ export default function ViewConfigScreen() {
               title={key.toUpperCase()}
               subtitle={`Chain ID: ${chainConfig.chainId || 'N/A'}`}
               chainData={chainConfig}
-              tokenData={tokenConfig}
+              tokenData={tokenData}
             />
           );
         })}

@@ -6,7 +6,7 @@ import { ActionCard } from '@/components/ActionCard';
 import { FeatureLayout } from '@/components/FeatureLayout';
 import { ConsoleOutput } from '@/components/ConsoleOutput';
 import { colors } from '@/constants/colors';
-import { tokenMap, tokens } from '@/config/token';
+import { TOKEN_MAP } from '@/config/token';
 
 export default function GetAccountScreen() {
   const [lookupParams, setLookupParams] = useState<UseAccountParams | null>(null);
@@ -17,7 +17,7 @@ export default function GetAccountScreen() {
   });
 
   const compatibleTokens = lookupParams
-    ? tokens.filter(t => t.getNetwork() === lookupParams.network)
+    ? Object.values(TOKEN_MAP).filter(t => t.getNetwork() === lookupParams.network)
     : [];
   const tokenOptions = compatibleTokens.map(t => ({ label: t.getSymbol(), value: t.getId() }));
 
@@ -69,7 +69,7 @@ export default function GetAccountScreen() {
                 { id: 'tokenId', type: 'select', label: 'Select Asset', options: tokenOptions }
               ]}
               action={async ({ tokenId }) => {
-                const asset = tokenMap.get(tokenId);
+                const asset = TOKEN_MAP.get(tokenId);
                 if (!asset) throw new Error(`Asset with id ${tokenId} not found`);
                 // getBalance expects an array of assets
                 const balances = await account.getBalance([asset]);
@@ -87,7 +87,7 @@ export default function GetAccountScreen() {
                 { id: 'assetId', type: 'select', label: 'Asset to Send', options: tokenOptions },
               ]}
               action={async ({ to, amount, assetId }) => {
-                const asset = tokenMap.get(assetId);
+                const asset = TOKEN_MAP.get(assetId);
                 if (!asset) throw new Error(`Asset with id ${assetId} not found`);
 
                 const result = await account.send({ to, amount, asset });

@@ -47,16 +47,12 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
   }
 ];
 
-/**
- * Export instantiated asset objects for use in the application.
- * This is the primary way components should access asset data.
- */
-export const tokens: AppAsset[] = AppAsset.fromConfigs(tokenAssetConfigs);
+const TOKENS: AppAsset[] = AppAsset.fromConfigs(tokenAssetConfigs);
 
 /**
  * Export a map for easy asset lookup by their unique ID.
  * e.g. tokenMap.get('ethereum-usdt')
  */
-export const tokenMap: Map<string, AppAsset> = new Map(
-  tokens.map(t => [t.getId(), t])
+export const TOKEN_MAP: Map<string, AppAsset> = new Map(
+  TOKENS.map(t => [t.getId(), t])
 );

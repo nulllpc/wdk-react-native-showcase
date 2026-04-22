@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useBalance, useBalancesForWallet, useRefreshBalance } from '@tetherto/wdk-react-native-core';
 import { FeatureLayout } from '@/components/FeatureLayout';
 import { colors } from '@/constants/colors';
-import { tokens } from '@/config/token';
+import { TOKEN_MAP } from '@/config/token';
 import { ConsoleOutput } from '@/components/ConsoleOutput';
+import { AppAsset } from '@/entities/AppAsset';
 
 export default function BalanceDemoScreen() {
   const [selectedAssetIndex, setSelectedAssetIndex] = useState(0);
-  const selectedAsset = tokens[selectedAssetIndex];
+  const selectedAsset: AppAsset = Object.values(TOKEN_MAP)[selectedAssetIndex];
   const accountIndex = 0; // Default account index
 
   const { 
@@ -18,7 +19,6 @@ export default function BalanceDemoScreen() {
     refetch: refetchSingle,
     error: singleError 
   } = useBalance(
-    selectedAsset.getNetwork(),
     accountIndex,
     selectedAsset,
     { enabled: true }
@@ -32,7 +32,7 @@ export default function BalanceDemoScreen() {
     error: allError
   } = useBalancesForWallet(
     accountIndex,
-    tokens,
+    Object.values(TOKEN_MAP),
     { enabled: true }
   );
 
@@ -69,7 +69,7 @@ export default function BalanceDemoScreen() {
           </Text>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.assetSelector}>
-            {tokens.map((token, index) => (
+            {Object.values(TOKEN_MAP).map((token, index) => (
               <TouchableOpacity
                 key={token.getId()}
                 style={[
@@ -166,7 +166,7 @@ export default function BalanceDemoScreen() {
             <View style={styles.listContainer}>
               {allBalances?.map((bal, idx) => (
                 <View key={idx} style={styles.listItem}>
-                  <Text style={styles.listItemSymbol}>{tokens.find(t => t.getId() === bal.assetId)?.getSymbol() || bal.assetId}</Text>
+                  <Text style={styles.listItemSymbol}>{Object.values(TOKEN_MAP).find(t => t.getId() === bal.assetId)?.getSymbol() || bal.assetId}</Text>
                   <Text style={styles.listItemValue}>{bal.balance}</Text>
                 </View>
               ))}

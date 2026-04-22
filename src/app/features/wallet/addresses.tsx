@@ -12,7 +12,7 @@ export default function AddressesScreen() {
     isLoading, 
     loadAddresses, 
     getAddressesForNetwork, 
-    getAccountInfoFromAddress,
+    getAccountInfoFromAddress
   } = useAddresses();
 
   const [lastActionOutput, setLastActionOutput] = useState<any>(null);

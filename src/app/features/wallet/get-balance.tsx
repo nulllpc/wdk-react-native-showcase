@@ -4,17 +4,15 @@ import { useBalance, useRefreshBalance } from '@tetherto/wdk-react-native-core';
 import { FeatureLayout } from '@/components/FeatureLayout';
 import { ConsoleOutput } from '@/components/ConsoleOutput';
 import { colors } from '@/constants/colors';
-import { tokens } from '@/config/token';
+import { TOKEN_MAP } from '@/config/token';
 import type { AppAsset } from '@/entities/AppAsset';
 import { RefreshCw } from 'lucide-react-native';
 
 const BalanceRow = ({ asset, accountIndex }: { asset: AppAsset, accountIndex: number }) => {
   const { data: balanceData, isLoading, error, refetch } = useBalance(
-    asset.getNetwork(),
     accountIndex,
     asset,
     {
-      // Example: set a stale time of 30 seconds for each balance query
       staleTime: 30 * 1000,
     }
   );
@@ -23,7 +21,6 @@ const BalanceRow = ({ asset, accountIndex }: { asset: AppAsset, accountIndex: nu
     if (isLoading) return 'Loading...';
     if (error) return 'Error';
     if (!balanceData?.success) return 'Failed';
-    // A simple formatter could be used here in a real app
     return balanceData.balance;
   }, [balanceData, isLoading, error]);
 
@@ -46,7 +43,7 @@ const BalanceRow = ({ asset, accountIndex }: { asset: AppAsset, accountIndex: nu
 
 
 export default function GetBalanceScreen() {
-  const accountIndex = 0; // Assuming a single account for now
+  const accountIndex = 0;
   const { mutate: refreshAllBalances, isPending: isRefreshingAll } = useRefreshBalance();
 
   const handleRefreshAll = () => {
@@ -75,7 +72,7 @@ export default function GetBalanceScreen() {
       </View>
 
       <ScrollView>
-        {tokens.map(asset => (
+        {Object.values(TOKEN_MAP).map(asset => (
           <BalanceRow key={asset.getId()} asset={asset} accountIndex={accountIndex} />
         ))}
       </ScrollView>

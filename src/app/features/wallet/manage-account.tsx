@@ -21,8 +21,7 @@ export default function ManageAccountScreen() {
     generateMnemonic,
     clearTemporaryWallet,
     clearCache,
-    setActiveWalletId,
-    refreshWalletList
+    setActiveWalletId
   } = useWalletManager();
 
   return (
@@ -38,17 +37,6 @@ export default function ManageAccountScreen() {
           availableWallets: wallets
         }} />
       </View>
-
-      <ActionCard
-        title="Refresh Wallet List"
-        description="Manually refreshes the list of available wallets."
-        fields={[]}
-        action={async () => {
-          await refreshWalletList();
-          return { success: true, message: "Wallet list refreshed" };
-        }}
-        actionLabel="Refresh"
-      />
 
       <ActionCard
         title="Create New Wallet"
@@ -119,7 +107,7 @@ export default function ManageAccountScreen() {
         description="Create a throwaway wallet for testing (not saved to storage)."
         fields={[]}
         action={async () => {
-          await createTemporaryWallet();
+          await createTemporaryWallet('temp-wallet');
           return { success: true, message: "Temporary wallet active" };
         }}
         actionLabel="Create Temp Wallet"
