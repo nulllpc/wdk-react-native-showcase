@@ -58,8 +58,8 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
     id: 'bitcoin',
     network: NETWORK_NAME.SPARK,
     isNative: false,
-    symbol: 'USAT',
-    name: 'Tether USAT',
+    symbol: 'BTC',
+    name: 'Bitcoin',
     decimals: 8
   },
   {

@@ -123,7 +123,7 @@ export default function App() {
                 <WalletCard 
                   key={id} 
                   id={id} 
-                  isActive={id === activeWalletId} 
+                  isActive={id === activeWalletId && state.status === "READY"} 
                   onUnlock={() => handleUnlock(id)} 
                 />
               ))}
@@ -144,9 +144,8 @@ export default function App() {
             title="Wallet Modules" 
             icon={<Wallet size={20} color={colors.primary} />}
           >
-            <FeatureItem title="Common Account Interaction" route="/features/wallet/get-account" />
-            <FeatureItem title="Get Balance" route="/features/wallet/get-balance" />
-            <FeatureItem title="Balance Hooks Demo" route="/features/wallet/balance-demo" />
+            <FeatureItem title="Assets & Transfers" route="/features/wallet/assets-and-transfers" />
+            <FeatureItem title="Advanced Account Ops" route="/features/wallet/advanced-account-ops" />
           </FeatureGroup>
         </View>
       </ScrollView>
