@@ -141,9 +141,10 @@ export default function App() {
 
         <View style={styles.groupsContainer}>
           <FeatureGroup 
-            title="Wallet Modules" 
+            title="Features" 
             icon={<Wallet size={20} color={colors.primary} />}
           >
+            <FeatureItem title="Manage Addresses" route="/features/wallet/addresses" />
             <FeatureItem title="Assets & Transfers" route="/features/wallet/assets-and-transfers" />
             <FeatureItem title="Advanced Account Ops" route="/features/wallet/advanced-account-ops" />
           </FeatureGroup>

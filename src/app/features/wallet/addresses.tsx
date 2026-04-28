@@ -81,11 +81,10 @@ export default function AddressesScreen() {
           setLastActionOutput({ 
             action: 'getAddressesForNetwork', 
             network, 
-            count: result.length,
-            result 
+            result: result
           });
           
-          return { success: true, message: `Found ${result.length} addresses for ${network}` };
+          return { success: true, message: `Found ${result.length} addresses for ${network}`, addresses: result };
         }}
         actionLabel="Filter"
       />
