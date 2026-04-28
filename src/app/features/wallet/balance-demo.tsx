@@ -8,8 +8,9 @@ import { ConsoleOutput } from '@/components/ConsoleOutput';
 import { AppAsset } from '@/entities/AppAsset';
 
 export default function BalanceDemoScreen() {
-  const [selectedAssetIndex, setSelectedAssetIndex] = useState(0);
-  const selectedAsset: AppAsset = Object.values(TOKEN_MAP)[selectedAssetIndex];
+  const firstAssetId = TOKEN_MAP.keys().next().value as string;
+  const [selectedAssetId, setSelectedAssetId] = useState<string>(firstAssetId);
+  const selectedAsset = TOKEN_MAP.get(selectedAssetId) as AppAsset;
   const accountIndex = 0; // Default account index
 
   const { 
@@ -39,6 +40,7 @@ export default function BalanceDemoScreen() {
   const { mutate: refreshBalance, isPending: isRefreshing } = useRefreshBalance();
 
   const handleRefreshSingle = () => {
+    if (!selectedAsset) return;
     refreshBalance({
       network: selectedAsset.getNetwork(),
       accountIndex,
@@ -69,18 +71,18 @@ export default function BalanceDemoScreen() {
           </Text>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.assetSelector}>
-            {Object.values(TOKEN_MAP).map((token, index) => (
+            {Array.from(TOKEN_MAP.values()).map((token) => (
               <TouchableOpacity
                 key={token.getId()}
                 style={[
                   styles.assetChip,
-                  selectedAssetIndex === index && styles.assetChipSelected
+                  selectedAsset?.getId() === token.getId() && styles.assetChipSelected
                 ]}
-                onPress={() => setSelectedAssetIndex(index)}
+                onPress={() => setSelectedAssetId(token.getId())}
               >
                 <Text style={[
                   styles.assetChipText,
-                  selectedAssetIndex === index && styles.assetChipTextSelected
+                  selectedAsset?.getId() === token.getId() && styles.assetChipTextSelected
                 ]}>
                   {token.getSymbol()}
                 </Text>
@@ -89,8 +91,8 @@ export default function BalanceDemoScreen() {
           </ScrollView>
 
           <View style={styles.resultBox}>
-            <Text style={styles.label}>Network: <Text style={styles.value}>{selectedAsset.getNetwork()}</Text></Text>
-            <Text style={styles.label}>Asset: <Text style={styles.value}>{selectedAsset.getName()} ({selectedAsset.getSymbol()})</Text></Text>
+            <Text style={styles.label}>Network: <Text style={styles.value}>{selectedAsset?.getNetwork()}</Text></Text>
+            <Text style={styles.label}>Asset: <Text style={styles.value}>{selectedAsset?.getName()} ({selectedAsset?.getSymbol()})</Text></Text>
             
             {isLoadingSingle ? (
               <ActivityIndicator color={colors.primary} style={styles.loader} />
@@ -98,7 +100,7 @@ export default function BalanceDemoScreen() {
               <Text style={styles.errorText}>Error: {singleError.message}</Text>
             ) : (
               <Text style={styles.balanceValue}>
-                {singleBalance?.balance || '0'} {selectedAsset.getSymbol()}
+                {singleBalance?.balance || '0'} {selectedAsset?.getSymbol()}
               </Text>
             )}
 
@@ -123,6 +125,26 @@ export default function BalanceDemoScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+
+          <View style={styles.inputParametersBox}>
+            <Text style={styles.inputParametersTitle}>Input Parameters:</Text>
+            <Text style={styles.inputParametersText}>
+              Account Index: <Text style={styles.inputParametersValue}>{accountIndex}</Text>
+            </Text>
+            {selectedAsset && (
+              <>
+                <Text style={styles.inputParametersText}>
+                  Asset ID: <Text style={styles.inputParametersValue}>{selectedAsset.getId()}</Text>
+                </Text>
+                <Text style={styles.inputParametersText}>
+                  Network: <Text style={styles.inputParametersValue}>{selectedAsset.getNetwork()}</Text>
+                </Text>
+                <Text style={styles.inputParametersText}>
+                  Symbol: <Text style={styles.inputParametersValue}>{selectedAsset.getSymbol()}</Text>
+                </Text>
+              </>
+            )}
           </View>
           
           {singleBalance && (
@@ -285,6 +307,29 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
     fontSize: 12,
+  },
+  inputParametersBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  inputParametersTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  inputParametersText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  inputParametersValue: {
+    fontWeight: '600',
+    color: colors.text,
   },
   listContainer: {
     marginTop: 16,

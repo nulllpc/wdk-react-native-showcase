@@ -1,5 +1,6 @@
 import { AppAsset } from '@/entities/AppAsset';
 import type { AppAssetConfig } from '@/entities/AppAsset';
+import { NETWORK_NAME } from './chain';
 
 /**
  * Main Application Asset Configurations
@@ -8,7 +9,7 @@ import type { AppAssetConfig } from '@/entities/AppAsset';
 export const tokenAssetConfigs: AppAssetConfig[] = [
   {
     id: 'ethereum-native',
-    network: 'ethereum',
+    network: NETWORK_NAME.ETHEREUM,
     isNative: true,
     address: null,
     symbol: 'ETH',
@@ -18,7 +19,7 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
   },
   {
     id: 'ethereum-usdt',
-    network: 'ethereum',
+    network: NETWORK_NAME.ETHEREUM,
     isNative: false,
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     symbol: 'USDT',
@@ -28,7 +29,7 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
   },
   {
     id: 'ethereum-xaut',
-    network: 'ethereum',
+    network: NETWORK_NAME.ETHEREUM,
     isNative: false,
     address: '0x68749665FF8D2d112Fa859AA293F07A622782F38',
     symbol: 'XAUT',
@@ -38,12 +39,38 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
   },
   {
     id: 'ethereum-usat',
-    network: 'ethereum',
+    network: NETWORK_NAME.ETHEREUM,
     isNative: false,
     address: '0x07041776f5007aca2a54844f50503a18a72a8b68',
     symbol: 'USAT',
     name: 'Tether USAT',
     decimals: 6
+  },
+  {
+    id: 'bitcoin',
+    network: NETWORK_NAME.BITCOIN,
+    isNative: true,
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    decimals: 8
+  },
+  {
+    id: 'bitcoin',
+    network: NETWORK_NAME.SPARK,
+    isNative: false,
+    symbol: 'USAT',
+    name: 'Tether USAT',
+    decimals: 8
+  },
+  {
+    id: 'tron-usdt',
+    network: NETWORK_NAME.TRON,
+    isNative: false,
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    symbol: 'USDT',
+    name: 'Tether USD',
+    decimals: 6,
+    logo: require('../../assets/images/tokens/tether-usdt-logo.png')
   }
 ];
 

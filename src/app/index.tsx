@@ -1,9 +1,9 @@
-import { ActivityIndicator, View, StyleSheet, ScrollView, Image, TouchableOpacity, Text } from 'react-native'
-import { useWdkApp } from '@tetherto/wdk-react-native-core'
+import { ActivityIndicator, View, StyleSheet, ScrollView, Image, TouchableOpacity, Text, Alert } from 'react-native'
+import { useWdkApp, useWalletManager } from '@tetherto/wdk-react-native-core'
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Wallet, Layers, Component, ChevronRight, CheckCircle2, XCircle, Settings } from 'lucide-react-native';
+import { Wallet, ChevronRight, CheckCircle2, XCircle, Settings, Plus } from 'lucide-react-native';
 
 const FeatureGroup = ({ title, icon, children }: { title: string, icon: React.ReactNode, children: React.ReactNode }) => (
   <View style={styles.groupContainer}>
@@ -37,9 +37,30 @@ const StatusBadge = ({ label, active }: { label: string, active: boolean }) => (
   </View>
 );
 
+const WalletCard = ({ id, isActive, onUnlock }: { id: string, isActive: boolean, onUnlock?: () => void }) => (
+  <View style={[styles.walletCard, isActive && styles.walletCardActive]}>
+    <View style={styles.walletCardInfo}>
+      <Wallet size={16} color={isActive ? colors.black : colors.primary} />
+      <Text style={[styles.walletCardId, isActive && styles.walletCardIdActive]}>{id}</Text>
+    </View>
+    {isActive ? (
+      <View style={styles.activeLabel}>
+        <CheckCircle2 size={12} color={colors.black} />
+        <Text style={styles.activeLabelText}>Active</Text>
+      </View>
+    ) : (
+      <TouchableOpacity style={styles.unlockButton} onPress={onUnlock}>
+        <Text style={styles.unlockButtonText}>Unlock</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+);
+
 export default function App() {
   const { state } = useWdkApp();
+  const { activeWalletId, wallets, unlock, lock } = useWalletManager();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   if (state.status === 'INITIALIZING') {
     return (
@@ -48,6 +69,15 @@ export default function App() {
       </View>
     );
   }
+
+  const handleUnlock = async (id: string) => {
+    try {
+      lock()
+      await unlock(id);
+    } catch (e: any) {
+      Alert.alert('Unlock Failed', e.message);
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -75,38 +105,48 @@ export default function App() {
           </View>
         </View>
 
+        <View style={styles.walletsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Wallets</Text>
+            <TouchableOpacity 
+              onPress={() => router.push('/features/wallet/manage-account')}
+              style={styles.manageButton}
+            >
+              <Settings size={16} color={colors.primary} />
+              <Text style={styles.manageButtonText}>Manage</Text>
+            </TouchableOpacity>
+          </View>
+
+          {wallets.length > 0 ? (
+            <View style={styles.walletList}>
+              {wallets.map(({ identifier: id }) => (
+                <WalletCard 
+                  key={id} 
+                  id={id} 
+                  isActive={id === activeWalletId} 
+                  onUnlock={() => handleUnlock(id)} 
+                />
+              ))}
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.createFirstButton}
+              onPress={() => router.push('/features/wallet/manage-account')}
+            >
+              <Plus size={20} color={colors.primary} />
+              <Text style={styles.createFirstButtonText}>Create your first wallet</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         <View style={styles.groupsContainer}>
           <FeatureGroup 
             title="Wallet Modules" 
             icon={<Wallet size={20} color={colors.primary} />}
           >
-            <FeatureItem title="Manage Wallets" route="/features/wallet/manage-account" />
             <FeatureItem title="Common Account Interaction" route="/features/wallet/get-account" />
             <FeatureItem title="Get Balance" route="/features/wallet/get-balance" />
             <FeatureItem title="Balance Hooks Demo" route="/features/wallet/balance-demo" />
-          </FeatureGroup>
-
-          <FeatureGroup 
-            title="Protocol Modules" 
-            icon={<Layers size={20} color={colors.primary} />}
-          >
-            <FeatureItem title="Swap" route="/features/protocols/swap" />
-            <FeatureItem title="Lending" route="/features/protocols/lending" />
-          </FeatureGroup>
-
-          <FeatureGroup 
-            title="Middleware" 
-            icon={<Component size={20} color={colors.primary} />}
-          >
-            <FeatureItem title="Pricing Service" route="/features/middleware/pricing" />
-            <FeatureItem title="Indexer" route="/features/middleware/indexer" />
-          </FeatureGroup>
-
-          <FeatureGroup 
-            title="System & Config" 
-            icon={<Settings size={20} color={colors.primary} />}
-          >
-            <FeatureItem title="View Configuration" route="/features/config/view-config" />
           </FeatureGroup>
         </View>
       </ScrollView>
@@ -131,7 +171,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 24,
     paddingTop: 20,
-    marginBottom: 32,
+    marginBottom: 24,
     alignItems: 'flex-start',
   },
   illustrationContainer: {
@@ -197,8 +237,108 @@ const styles = StyleSheet.create({
   badgeTextActive: {
     color: colors.black,
   },
+  walletsSection: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  manageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  manageButtonText: {
+    color: colors.primary,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  walletCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 8,
+  },
+  walletCardActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  walletCardInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  walletCardId: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  walletCardIdActive: {
+    color: colors.black,
+  },
+  activeLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  activeLabelText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: colors.black,
+  },
+  unlockButton: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  unlockButtonText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  walletList: {
+    marginTop: 8,
+  },
+  createFirstButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+    backgroundColor: 'rgba(66, 153, 225, 0.1)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(66, 153, 225, 0.3)',
+  },
+  createFirstButtonText: {
+    color: colors.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   groupsContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     gap: 24,
   },
   groupContainer: {

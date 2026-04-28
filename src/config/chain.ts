@@ -1,4 +1,4 @@
-import { type EvmWalletConfig } from '@tetherto/wdk-wallet-evm'
+import { type EvmErc4337WalletConfig } from '@tetherto/wdk-wallet-evm-erc-4337'
 import { type BtcWalletConfig } from '@tetherto/wdk-wallet-btc'
 import { type SparkWalletConfig } from '@tetherto/wdk-wallet-spark'
 import { type TronGasfreeWalletConfig } from '@tetherto/wdk-wallet-tron-gasfree'
@@ -12,7 +12,7 @@ export enum NETWORK_NAME {
 }
 
 export const wdkConfigs: WdkConfigs<
-  EvmWalletConfig | BtcWalletConfig | SparkWalletConfig | TronGasfreeWalletConfig
+  EvmErc4337WalletConfig | BtcWalletConfig | SparkWalletConfig | TronGasfreeWalletConfig
 > = {
   networks: {
     [NETWORK_NAME.BITCOIN]: {
@@ -30,7 +30,16 @@ export const wdkConfigs: WdkConfigs<
     [NETWORK_NAME.ETHEREUM]: {
       blockchain: NETWORK_NAME.ETHEREUM,
       config: {
-        provider: 'https://sepolia.gateway.tenderly.co',
+        chainId: 11155111,
+        provider: 'https://eth-sepolia.g.alchemy.com/v2/demo',
+        bundlerUrl: 'https://api.candide.dev/public/v3/sepolia',
+        paymasterUrl: 'https://api.candide.dev/public/v3/sepolia',
+        paymasterAddress: '0x8b1f6cb5d062aa2ce8d581942bbb960420d875ba',
+        entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+        safeModulesVersion: '0.3.0',
+        paymasterToken: {
+          address: '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+        },
         transferMaxFee: 10000000
       }
     },
@@ -43,13 +52,13 @@ export const wdkConfigs: WdkConfigs<
     [NETWORK_NAME.TRON]: {
       blockchain: NETWORK_NAME.TRON,
       config: {
-        chainId: 1,
-        provider: '',
-        gasFreeProvider: '',
+        chainId: 3448148188, // Nile testnet
+        provider: 'https://nile.trongrid.io',
+        gasFreeProvider: 'https://open-test.gasfree.io/nile',
         gasFreeApiKey: '',
         gasFreeApiSecret: '',
-        serviceProvider: '',
-        verifyingContract: ''
+        serviceProvider: 'TKtWbdzEq5ss9vTS9kwRhBp5mXmBfBns3E',
+        verifyingContract: 'THQGuFzL87ZqhxkgqYEryRAd7gqFqL5rdc'
       }
     }
   }
