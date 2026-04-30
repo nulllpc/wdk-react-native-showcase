@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import { colors } from '@/constants/colors';
 
 interface Props {
   data: any;
@@ -16,7 +15,7 @@ export const ConsoleOutput: React.FC<Props> = ({ data, error }) => {
     <View style={[styles.container, error && styles.errorContainer]}>
       <Text style={styles.label}>Output:</Text>
       <ScrollView style={styles.scroll} nestedScrollEnabled>
-        <Text style={[styles.text, error && styles.errorText]}>{text}</Text>
+        <Text selectable style={[styles.text, error && styles.errorText]}>{text}</Text>
       </ScrollView>
     </View>
   );

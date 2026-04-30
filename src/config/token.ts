@@ -47,7 +47,7 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
     decimals: 6
   },
   {
-    id: 'bitcoin',
+    id: 'bitcoin-native',
     network: NETWORK_NAME.BITCOIN,
     isNative: true,
     symbol: 'BTC',
@@ -55,9 +55,9 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
     decimals: 8
   },
   {
-    id: 'bitcoin',
+    id: 'bitcoin-spark',
     network: NETWORK_NAME.SPARK,
-    isNative: false,
+    isNative: true,
     symbol: 'BTC',
     name: 'Bitcoin',
     decimals: 8
@@ -66,7 +66,7 @@ export const tokenAssetConfigs: AppAssetConfig[] = [
     id: 'tron-usdt',
     network: NETWORK_NAME.TRON,
     isNative: false,
-    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    address: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
     symbol: 'USDT',
     name: 'Tether USD',
     decimals: 6,

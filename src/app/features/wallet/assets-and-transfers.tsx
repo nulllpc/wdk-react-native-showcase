@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity, Image, TextInput, Alert, ScrollView } from 'react-native';
 import { useBalancesForWallet, useAccount } from '@tetherto/wdk-react-native-core';
 import { FeatureLayout } from '@/components/FeatureLayout';
@@ -7,6 +7,10 @@ import { TOKEN_MAP } from '@/config/token';
 import { RefreshCw, ArrowUpRight, Send, CheckCircle2 } from 'lucide-react-native';
 import { ConsoleOutput } from '@/components/ConsoleOutput';
 import { AssetSelector } from '@/components/AssetSelector';
+import BigNumber from 'bignumber.js';
+import type { WalletAccountTronGasfree } from '@tetherto/wdk-wallet-tron-gasfree';
+import type { WalletAccountEvmErc4337 } from '@tetherto/wdk-wallet-evm-erc-4337';
+import { NETWORK_NAME } from '@/config/chain';
 
 export default function AssetsAndTransfersScreen() {
   const accountIndex = 0;
@@ -14,15 +18,10 @@ export default function AssetsAndTransfersScreen() {
   const [selectedAssetId, setSelectedAssetId] = useState(Array.from(TOKEN_MAP.keys())[0]);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-  const [txResult, setTxResult] = useState<any>(null);
+  const [txHash, setTxHash] = useState<string>('');
   const [isSending, setIsSending] = useState(false);
 
   const selectedAssetForTransfer = TOKEN_MAP.get(selectedAssetId);
-
-  const account = useAccount({
-    network: selectedAssetForTransfer?.getNetwork() ?? '',
-    accountIndex
-  });
 
   const { 
     data: balances, 
@@ -36,7 +35,12 @@ export default function AssetsAndTransfersScreen() {
     { enabled: true }
   );
 
-  const handleSend = async () => {
+  const account = useAccount({
+    network: selectedAssetForTransfer?.getNetwork() ?? '',
+    accountIndex
+  });
+
+  const handleSend = useCallback(async () => {
     if (!account) {
       Alert.alert('Error', 'Account not loaded. Ensure wallet is unlocked.');
       return;
@@ -45,16 +49,59 @@ export default function AssetsAndTransfersScreen() {
       Alert.alert('Error', 'Please provide recipient and amount.');
       return;
     }
+    if (!selectedAssetForTransfer) {
+      Alert.alert('Error', 'No asset selected.');
+      return;
+    }
+
+    const decimals = selectedAssetForTransfer.getDecimals();
+    const network = selectedAssetForTransfer.getNetwork();
+    const amountInBaseUnit = new BigNumber(amount).shiftedBy(decimals).toFixed(0);
+
+    const sendPromise = (() => {
+      if (selectedAssetForTransfer.isNative()) {
+        return account.send({
+          to: recipient,
+          amount: amountInBaseUnit,
+          asset: selectedAssetForTransfer
+        });
+      }
+
+      const token = selectedAssetForTransfer.getContractAddress();
+      if (!token) return null;
+
+      switch (network) {
+        case NETWORK_NAME.ETHEREUM:
+          return (account.extension() as WalletAccountEvmErc4337).transfer({
+            recipient,
+            amount: amountInBaseUnit,
+            token
+          }, {
+            paymasterToken: {
+              address: token
+            }
+          });
+        case NETWORK_NAME.TRON:
+          return (account.extension() as WalletAccountTronGasfree).transfer({
+            recipient,
+            amount: BigInt(amountInBaseUnit),
+            token
+          });
+        default:
+          return null;
+      }
+    })();
+
+    if (!sendPromise) {
+      Alert.alert('Error', 'Transfer not supported for this asset/network.');
+      return;
+    }
 
     setIsSending(true);
-    setTxResult(null);
+    setTxHash('');
     try {
-      const result = await account.send({
-        to: recipient,
-        amount: amount,
-        asset: selectedAssetForTransfer!
-      });
-      setTxResult(result);
+      const result = await sendPromise;
+      setTxHash(result?.hash);
       setAmount('');
       setRecipient('');
       refetch();
@@ -63,7 +110,7 @@ export default function AssetsAndTransfersScreen() {
     } finally {
       setIsSending(false);
     }
-  };
+  }, [account, selectedAssetForTransfer, amount, recipient, refetch]);
 
   return (
     <FeatureLayout 
@@ -92,10 +139,10 @@ export default function AssetsAndTransfersScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Amount (Smallest Units)</Text>
+            <Text style={styles.inputLabel}>Amount ({selectedAssetForTransfer?.getSymbol()})</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g. 1000000"
+              placeholder={`e.g. 0.01 ${selectedAssetForTransfer?.getSymbol()}`}
               placeholderTextColor={colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -118,13 +165,13 @@ export default function AssetsAndTransfersScreen() {
             )}
           </TouchableOpacity>
 
-          {txResult && (
+          {txHash && (
             <View style={styles.resultContainer}>
               <View style={styles.resultHeader}>
                 <CheckCircle2 size={16} color="#48BB78" />
                 <Text style={styles.resultTitle}>Transfer Successful</Text>
               </View>
-              <ConsoleOutput data={txResult} />
+              <ConsoleOutput data={txHash} />
             </View>
           )}
         </View>
@@ -158,11 +205,13 @@ export default function AssetsAndTransfersScreen() {
 
           <View style={styles.listContainer}>
             {Array.from(TOKEN_MAP.values()).map((asset) => {
-              const balanceObj = balances?.find(b => b.assetId === asset.getId());
-              const balanceValue = balanceObj?.balance || '0.00';
+              const balanceObj = balances?.find(b => b.assetId === asset.getId() && b.network === asset.getNetwork());
+              const balanceValue = balanceObj?.balance 
+                ? new BigNumber(balanceObj.balance).shiftedBy(-asset.getDecimals()).toFixed()
+                : '0.00';
 
               return (
-                <View key={asset.getId()} style={styles.assetRow}>
+                <View key={`${asset.getId()}-${asset.getNetwork()}`} style={styles.assetRow}>
                   <View style={styles.assetIconContainer}>
                     {asset.getLogo() ? (
                       <Image source={asset.getLogo()} style={styles.assetLogo} />

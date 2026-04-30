@@ -16,3 +16,4 @@ npm-debug.*
 web-build/
 .wdk-bundle/
 .wdk/
+.env

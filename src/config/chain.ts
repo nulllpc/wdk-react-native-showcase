@@ -22,7 +22,7 @@ export const wdkConfigs: WdkConfigs<
         client: {
           type: 'blockbook-http',
           clientConfig: {
-            url: 'blockbook endpoint'
+            url: process.env.EXPO_PUBLIC_BTC_PROVIDER as string
           }
         }
       }
@@ -30,10 +30,10 @@ export const wdkConfigs: WdkConfigs<
     [NETWORK_NAME.ETHEREUM]: {
       blockchain: NETWORK_NAME.ETHEREUM,
       config: {
-        chainId: 11155111,
-        provider: 'https://eth-sepolia.g.alchemy.com/v2/demo',
-        bundlerUrl: 'https://api.candide.dev/public/v3/sepolia',
-        paymasterUrl: 'https://api.candide.dev/public/v3/sepolia',
+        chainId: 1,
+        provider: process.env.EXPO_PUBLIC_EVM_PROVIDER as string,
+        bundlerUrl: process.env.EXPO_PUBLIC_EVM_BUNDLER_URL as string,
+        paymasterUrl: process.env.EXPO_PUBLIC_EVM_PAYMASTER_URL as string,
         paymasterAddress: '0x8b1f6cb5d062aa2ce8d581942bbb960420d875ba',
         entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
         safeModulesVersion: '0.3.0',
@@ -53,12 +53,13 @@ export const wdkConfigs: WdkConfigs<
       blockchain: NETWORK_NAME.TRON,
       config: {
         chainId: 3448148188, // Nile testnet
-        provider: 'https://nile.trongrid.io',
-        gasFreeProvider: 'https://open-test.gasfree.io/nile',
-        gasFreeApiKey: '',
-        gasFreeApiSecret: '',
+        provider: process.env.EXPO_PUBLIC_TRON_PROVIDER as string,
+        gasFreeProvider: process.env.EXPO_PUBLIC_TRON_GASFREE_PROVIDER as string,
+        gasFreeApiKey: process.env.EXPO_PUBLIC_TRON_GASFREE_API_KEY as string,
+        gasFreeApiSecret: process.env.EXPO_PUBLIC_TRON_GASFREE_API_SECRET as string,
         serviceProvider: 'TKtWbdzEq5ss9vTS9kwRhBp5mXmBfBns3E',
-        verifyingContract: 'THQGuFzL87ZqhxkgqYEryRAd7gqFqL5rdc'
+        verifyingContract: 'THQGuFzL87ZqhxkgqYEryRAd7gqFqL5rdc',
+        transferMaxFee: 100000000000000
       }
     }
   }
